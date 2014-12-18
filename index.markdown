@@ -12,7 +12,7 @@ progress. It claims to do the following:
 
 - Read recorded bird-songs (`aiff` file format) and create a spectogram like the one show below.
 
-![spectogram]({{site.url}}/_data/spectogram.png)
+![spectogram]({{ site.url }}/_data/spectogram.png)
 
 - Extract `notes` and store them in XML file.
 - Process stored notes in an XML file and cluster them according to temporal
