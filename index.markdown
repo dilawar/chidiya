@@ -10,7 +10,9 @@ repository_url: http://github.com/dilawar/chidiya
 This cython application __chidiya__ (चिड़िया) -- Hindustani for bird -- is a work in
 progress. It claims to do the following:
 
-- Read recorded bird-songs (`aiff` file format). Create a ![spectogram]({{site.url}}/_data/spectogram.png)
+- Read recorded bird-songs (`aiff` file format) and create a spectogram like the one show below.
+
+![spectogram]({{site.url}}/_data/spectogram.png)
 
 - Extract `notes` and store them in XML file.
 - Process stored notes in an XML file and cluster them according to temporal
@@ -62,4 +64,5 @@ described in configuration file. You must pass the location of configuration
 file. The default location is `chidiya.conf` located in the same directory in
 which you run this application. You need to modify the parameters as suggested
 in [configuration]({% post_url 2014-12-10-Configuration %}) section.
+
 
