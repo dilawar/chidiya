@@ -2,7 +2,7 @@
 layout: page
 title: Home
 comments: true
-repository_url: http://github.com/dilawar/birdsong
+repository_url: http://github.com/dilawar/chidiya
 ---
 
 This cython application __chidiya__ (चिड़िया) -- Hindustani for bird -- is a work in
