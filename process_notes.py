@@ -69,7 +69,7 @@ class ProcessNotes():
 
         currTime = 0.0
         for n in self.notes:
-            nt = float(n.attrib['xscale']) * n.startx
+            nt = n.time
             if nt - currTime >= self.minSongSep:
                 print("+ This is a song at time %s" % currTime)
             currTime = nt

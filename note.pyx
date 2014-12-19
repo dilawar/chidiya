@@ -1,6 +1,6 @@
 """note.py: Class representing a note.
 
-Last modified: Fri Dec 19, 2014  01:13AM
+Last modified: Fri Dec 19, 2014  07:49AM
 
 """
     
@@ -25,7 +25,7 @@ cdef class Note:
     cdef double energy, width, height
     cdef int computed, geometryComputed
     cdef int startx, starty
-    cdef double xscale
+    cdef double xscale, time
 
     property points:
         def __get__(self): return self.points
@@ -51,6 +51,10 @@ cdef class Note:
         def __get__(self): return self.xscale 
         def __set__(self, v): self.xscale = v
 
+    property time:
+        def __get__(self): return self.time
+        def __set__(self, v): self.time = v
+
     def __cinit__(self, x, y):
         self.origin = (x, y)
         self.energy = 0.0
@@ -65,12 +69,14 @@ cdef class Note:
         self.startx = 0
         self.starty = 0
         self.xscale = 1.0
+        self.time = 0.0
 
     cpdef computeAll(self, image):
         if self.computed == 0:
             self.computeGeometry()
             for p in self.points:
                 self.energy += image[p[0], p[1]] 
+            self.time = g.xscale * self.startx
             self.computed = 1
 
     cdef computeGeometry(self):
@@ -114,6 +120,9 @@ cdef class Note:
 
         energyElem = etree.SubElement(noteExp, "energy")
         energyElem.text = "%s" % self.energy
+
+        timeElem = etree.SubElement(noteExp, "time")
+        timeElem.text = "%s" % self.time
 
         pointsElem = etree.SubElement(noteExp, "points")
         for p in self.points:
