@@ -1,6 +1,6 @@
 """ Starting point of the program.
 
-Last modified: Thu Dec 18, 2014  08:58PM
+Last modified: Fri Dec 19, 2014  04:58PM
 
 """
     
@@ -19,12 +19,23 @@ import reader
 import birdsong
 import pyhelper.print_utils as pu
 import process_notes
+import os
+import sys
 
 def main(config):
 
     # Read audio data.
     af = reader.AudioFile(config.get('audio', 'filepath'))
     af.readData()
+
+    # Setting the output directory to which we need to dump the results.
+    outdir = os.path.dirname(g.args_.input_song)
+    outsubdir = "_%s_data_" % os.path.basename(g.args_.input_song)
+    g.outdir = os.path.join(outdir, outsubdir)
+    if not os.path.exists(g.outdir):
+        g.logger.debug("Creating directory %s" % g.outdir)
+        os.makedirs(g.outdir)
+        assert os.path.exists(g.outdir), "Failed to create"
 
     if g.args_.extract_notes:
         pu.dump("STEP", "Extracting notes ...")
@@ -75,7 +86,7 @@ if __name__ == '__main__':
 
     parser.add_argument('--note_file', '-nf'
             , required = False
-            , default = 'notes.dat'
+            , default = None
             , help = 'File where notes are stored and read from'
             )
 

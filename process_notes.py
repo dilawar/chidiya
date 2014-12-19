@@ -22,11 +22,16 @@ import lxml.objectify as objectify
 import lxml.etree as etree
 import numpy as np
 import pylab
+import os
+import sys
 
 
 class ProcessNotes():
 
     def __init__(self):
+
+        if g.args_.note_file is None:
+            g.args_.note_file = os.path.join(g.outdir, "note.dat")
 
         self.noteFile = g.args_.note_file 
         self.notes = []
@@ -36,7 +41,7 @@ class ProcessNotes():
         self.delay = 0.0
         self.delayList = []
         self.avgNoteSep = 0.25 
-        self.songFileName = 'songs.dat'
+        self.songFileName = os.path.join(g.outdir, 'songs.dat')
         self.songElem = etree.Element("songs")
 
     def analyze(self, **kwargs):
@@ -45,8 +50,18 @@ class ProcessNotes():
         self.getSongs()
 
     def readNoteFile(self):
-        with open(self.noteFile, "r") as nF:
-            noteXml = objectify.parse(nF)
+        try:
+            with open(self.noteFile, "r") as nF:
+                noteXml = objectify.parse(nF)
+        except:
+            pu.dump("WARN"
+                    , [ "No file %s found containing notes" % self.noteFile
+                        , "Either you can not extracted the notes. "
+                        , "Or the file is not readable"
+                        ]
+                    )
+            sys.exit(0)
+            
         self.notes = noteXml.findall('note')
 
     def getSongs(self):

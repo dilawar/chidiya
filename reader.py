@@ -1,7 +1,7 @@
 
 """reader.py: Read audio file
 
-Last modified: Sat Jan 18, 2014  05:01PM
+Last modified: Fri Dec 19, 2014  04:48PM
 
 """
     
@@ -17,6 +17,7 @@ __status__           = "Development"
 import globals as g
 import aifc
 import numpy as np
+import pyhelper.print_utils as pu
 
 class AudioFile(object):
 

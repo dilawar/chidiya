@@ -46,7 +46,7 @@ class BirdSong:
         self.croppedImage = None
         self.notesImage = None
         self.imageH = None
-        self.filename = "spectogram.png"
+        self.filename = os.path.join(g.outdir, "spectogram.png")
         self.notes = []
         self.time = 0.0
         self.start_time = 0.0
@@ -162,7 +162,7 @@ class BirdSong:
         pylab.imsave(self.filename, self.imageMat)
         pylab.close()
         self.getNotes()
-        self.plotNotes("notes.png")
+        self.plotNotes(os.path.join(g.outdir, "notes.png"))
         #self.plotNotes(filename = None)
 
     def getNotes(self, **kwargs):
@@ -189,12 +189,16 @@ class BirdSong:
         self.filterAndSort()
         assert len(self.notes) > 0, "There must be non-zero notes"
 
-        pu.dump("INFO", [ "Writings notes to {}".format(g.args_.note_file)])
+        if g.args_.note_file is None:
+            pu.dump("INFO", "Setting note file to %s" % g.args_.note_file)
+            g.args_.note_file = os.path.join(g.outdir, "note.dat")
 
+        pu.dump("INFO", [ "Writings notes to {}".format(g.args_.note_file)])
         noteXml = etree.Element("notes")
         with open(g.args_.note_file, "wb") as f:
             for n in self.notes:
                 noteXml.append(n.toElementTree())
+
         with open(g.args_.note_file, "w") as xmlFile:
             pu.dump("INFO", "Writing notes to %s" % xmlFile.name)
             xmlFile.write(etree.tostring(noteXml, pretty_print=True))
@@ -228,8 +232,7 @@ class BirdSong:
         if not filename:
             pylab.show()
         else:
-            dirPath = g.createDataDirs()
-            filename = os.path.join(dirPath, filename)
+            filename = os.path.join(g.outdir, filename)
             g.logger.info("Saving notes and image to %s" % filename)
             pylab.savefig(filename)
 

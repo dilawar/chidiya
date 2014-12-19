@@ -1,8 +1,9 @@
 #!/bin/bash
 set -e
+set -x
 rm -f *.png *.eps
 python setup.py build_ext --inplace
-if [ $1 = "x" ]; then
+if [[ $1 = "x" ]]; then
     echo "Extracting notes"
     python main.py -in ~/Public/DATA/two_bird_together.aif --extract_notes -c chidiya.conf
 else

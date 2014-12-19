@@ -54,7 +54,10 @@ yscale = 1.0
 st = time.time()
 stamp = datetime.datetime.fromtimestamp(st).strftime('%Y-%m-%d-%H')
 
+# The directory to which we need to save data. This should be computed using the
+# input filename.
 basedir = "_output"
+outdir = ""
 
 def createDataDirs(createTimeStampDir = True):
     if not os.path.isdir(basedir):
