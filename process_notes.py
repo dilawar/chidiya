@@ -2,7 +2,7 @@
 
     Class to process notes.
 
-Last modified: Fri Dec 19, 2014  07:26AM
+Last modified: Fri Dec 19, 2014  08:13AM
 
 """
     
@@ -19,6 +19,7 @@ import note
 import globals as g
 import pyhelper.print_utils as pu
 import lxml.objectify as objectify
+import lxml.etree as etree
 import numpy as np
 import pylab
 
@@ -35,7 +36,8 @@ class ProcessNotes():
         self.delay = 0.0
         self.delayList = []
         self.avgNoteSep = 0.25 
-
+        self.songFileName = 'songs.dat'
+        self.songElem = etree.Element("songs")
 
     def analyze(self, **kwargs):
         pu.dump("STEP", "Processing notes stored in %s " % self.noteFile)
@@ -68,19 +70,21 @@ class ProcessNotes():
         self.minSongSep = 1.01 *  sortedTime[transTime]
 
         currTime = 0.0
+        songNotes = []
+        sElem = etree.SubElement(self.songElem, "song")
+        songNos = 0
         for n in self.notes:
             nt = n.time
+            songNotes.append(n)
             if nt - currTime >= self.minSongSep:
-                print("+ This is a song at time %s" % currTime)
+                songNos += 1
+                for n in songNotes:
+                    sElem.append(n)
+                songNotes = []
+                sElem = etree.SubElement(self.songElem, "song")
             currTime = nt
-
-        #pylab.vlines(startTime, [0], energy)
-        #pylab.ylabel("Energy in note")
-        #pylab.xlabel("Time of note in sec")
-        #pylab.show()
         
-
-
-            
-
-
+        pu.dump("INFO", "Total %s songs found" % songNos)
+        with open(self.songFileName, "w") as sf:
+            pu.dump("STEP", "Writing songs to %s" % self.songFileName)
+            etree.tostring(self.songElem, pretty_print=True)
