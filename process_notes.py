@@ -2,7 +2,7 @@
 
     Class to process notes.
 
-Last modified: Fri Dec 19, 2014  01:59AM
+Last modified: Fri Dec 19, 2014  07:26AM
 
 """
     
@@ -34,8 +34,7 @@ class ProcessNotes():
         # Its the delay between this note and its predecessor.
         self.delay = 0.0
         self.delayList = []
-        self.meanNoteSeparation = 0.0
-        self.meanSongSeparation = 0.0
+        self.avgNoteSep = 0.25 
 
 
     def analyze(self, **kwargs):
@@ -58,10 +57,27 @@ class ProcessNotes():
             startTime[i] = time 
             energy[i] = n.energy
 
-        pylab.vlines(startTime, [0], energy)
-        pylab.ylabel("Energy in note")
-        pylab.xlabel("Time of note in sec")
-        pylab.show()
+
+        # Algorithm to check the separation between songs:
+        # 1. Sort the time difference array.
+        # 2. Take the diff of sorted array.
+        # 3. Find the index at which max-transition occurs.
+    
+        sortedTime = np.diff(np.sort(np.diff(startTime)))
+        transTime = np.argmax(sortedTime)
+        self.minSongSep = 1.01 *  sortedTime[transTime]
+
+        currTime = 0.0
+        for n in self.notes:
+            nt = float(n.attrib['xscale']) * n.startx
+            if nt - currTime >= self.minSongSep:
+                print("+ This is a song at time %s" % currTime)
+            currTime = nt
+
+        #pylab.vlines(startTime, [0], energy)
+        #pylab.ylabel("Energy in note")
+        #pylab.xlabel("Time of note in sec")
+        #pylab.show()
         
 
 
