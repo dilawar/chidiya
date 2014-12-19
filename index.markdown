@@ -14,10 +14,16 @@ progress. It claims to do the following:
 
 ![spectogram]({{ site.url }}/_data/spectogram.png)
 
-- Extract `notes` and store them in XML file.
+- Extract `notes`. A small section of the spectogram is shown below. Lower pane
+  is raw spectogram, the upper pane shows extracted notes.
+
+![Extracted notes]( {{ site.url }}/_data/notes.png )
+
+
+- And store them in XML file.
+
 - Process stored notes in an XML file and cluster them according to temporal
   variation. It calls them song.
-
 
 ## How to use the program 
 
