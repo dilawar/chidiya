@@ -3,7 +3,7 @@
 
     Process the data in birdsong.
 
-Last modified: Sat Dec 20, 2014  10:23PM
+Last modified: Sun Dec 21, 2014  01:32AM
 
 """
     
@@ -105,6 +105,7 @@ class BirdSong:
                         , verbosity = 3
                         )
             else:
+                n.computeLine()
                 validNotes.append(n)
         self.notes = sorted(validNotes[:], key = lambda note : note.startx)
         pu.log("INFO", "Total {} notes".format(len(self.notes)))
@@ -179,7 +180,8 @@ class BirdSong:
         # array.
 
         #self.testImage()
-        g.logger.debug("+ Saving spectogram to %s " % self.filename)
+        pu.log("STEP", "Saving spectogram to %s " % self.filename, verbosity=0)
+        g.image_ = self.imageMat
         pylab.imsave(self.filename, self.imageMat)
         pylab.close()
         self.getNotes()
@@ -204,7 +206,7 @@ class BirdSong:
 
         img = np.copy(self.croppedImage)
         self.averagePixalVal = img.mean()
-        g.logger.debug("+ Average pixal value is %s " % self.averagePixalVal)
+        pu.log("DEBUG", "+ Average pixal value is %s " % self.averagePixalVal)
         # Get all the notes in image and insert them into self.notes . Make sure
         # it is sorted.
         self.notes = self.algo.notes(img)

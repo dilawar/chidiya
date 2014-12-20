@@ -1,6 +1,6 @@
 """note.py: Class representing a note.
 
-Last modified: Sat Dec 20, 2014  09:02PM
+Last modified: Sun Dec 21, 2014  02:11AM
 
 """
     
@@ -19,6 +19,7 @@ import cv2
 from lxml import etree
 import globals as g
 from collections import defaultdict
+import pyhelper.print_utils as pu
 
 cdef class Note:
 
@@ -107,10 +108,11 @@ cdef class Note:
             else: validPoints.append(p)
         self.points = validPoints 
 
-    cdef computeLine(self):
+    cpdef computeLine(self):
         """Construct a line for a note """
         cdef double sums, weights 
         cdef int x
+        pu.log("STEP", "Approximating note with a line")
         pointDict = defaultdict(set)
         for x, y in sorted(self.points):
             pointDict[x].add(y)
@@ -119,14 +121,13 @@ cdef class Note:
             sums = 0.0
             weights = 0.0
             ps = pointDict[x]
-            #for y in ps:
-                #sums += (y * g.image_[x, y])
-                #weights += g.image_[x, y]
-            #lineDict[x] = int(sums / weights)
-            lineDict[x] = int(float(sum(ps)) / len(ps))
+            for y in ps:
+                sums += (y * g.image_[x, y])
+                weights += g.image_[x, y]
+            lineDict[x] = int(sums / weights)
         for k in lineDict:
             self.line.append((k, lineDict[k]))
-        sorted(self.line)
+        self.line.sort()
 
     cdef computeGeometry(self):
         if self.geometryComputed == 0:
@@ -134,7 +135,6 @@ cdef class Note:
             self.starty = min(self.ypoints)
             self.width = max(self.xpoints) - self.startx
             self.height = max(self.ypoints) - self.starty
-            self.computeLine()
             self.timeWidth = self.width * g.dt 
             self.geometryComputed = 1
 
@@ -221,14 +221,13 @@ cdef class Note:
 
     cpdef plotGeom(self, img):
         cdef int i = 0
-        #for i, p in enumerate(self.line[:-2]):
-            #startP = self.line[i]
-            #stopP = self.line[i+1]
-            #cv2.line(img, (startP[1], startP[0]), (stopP[1], stopP[0]), (0,0,0))
+        for i, p in enumerate(self.line[:-2]):
+            startP = self.line[i]
+            stopP = self.line[i+1]
+            cv2.line(img, (startP[1], startP[0]), (stopP[1], stopP[0]), (0,0,0))
 
-        for p in self.line:
-            img[p[0], p[1]] = 0
-
+        #for p in self.line:
+            #img[p[0], p[1]] = 0
     
     # This function is also called from python. Therefore cpdef instead of cdef.
     cpdef isValid(self):
@@ -239,26 +238,31 @@ cdef class Note:
         cdef double maxWidthOfNote = float(g.config_.get('note', 'max_width'))
 
         if len(self.points) < minPixelsInNote:
-            g.logger.debug("Not enough points in this note. Rejecting")
+            pu.log("TEST", "Not enough points in this note. Rejecting")
             return False
 
         self.computeGeometry()
         if(self.timeWidth < minWidthOfNote):
-            g.logger.info("Width of this note ({}) is not enough (< {})".format(
-                self.width, minWidthOfNote)
-                )
+            pu.log("TEST"
+                    , "Width of this note ({}) is not enough (< {})".format(
+                        self.width, minWidthOfNote
+                        )
+                    )
             return False
 
         if(self.timeWidth > maxWidthOfNote):
-            g.logger.info("Width of this note {} is larger than max {}".format(
-                self.timeWidth 
-                , maxWidthOfNote)
-                )
+            pu.log("TEST"
+                    , "Width of this note {} is larger than max {}".format(
+                        self.timeWidth 
+                        , maxWidthOfNote
+                        )
+                    )
             return False
 
         
         if(self.height >  2 * self.width):
-            g.logger.info("Width of this note is smallar then its 2 * height"
+            pu.log("TEST"
+                    , "Width of this note is smallar then its 2 * height"
                     )
             return False
 

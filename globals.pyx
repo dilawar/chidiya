@@ -45,7 +45,7 @@ args_ = None
 image_ = None
 
 # Global debug level
-verbosity_ = 1
+verbosity_ = 0
 
 sampling_freq = 0.0
 dt = 1.0
