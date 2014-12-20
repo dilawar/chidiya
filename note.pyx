@@ -1,6 +1,6 @@
 """note.py: Class representing a note.
 
-Last modified: Sat Dec 20, 2014  05:45AM
+Last modified: Sat Dec 20, 2014  05:54AM
 
 """
     
@@ -93,14 +93,14 @@ cdef class Note:
         pointDict = defaultdict(set)
         for x, y in sorted(self.points):
             pointDict[x].add(y)
-        sums = 0.0
-        weights = 0.0
         for x in pointDict:
+            sums = 0.0
+            weights = 0.0
             ps = pointDict[x]
             for y in ps:
-                sums += (x * image[x, y])
+                sums += (y * image[x, y])
                 weights += image[x, y]
-            self.line.append([x, y])
+            self.line.append([x, int(sums/weights)])
 
     cdef computeGeometry(self):
         if self.geometryComputed == 0:
@@ -155,6 +155,13 @@ cdef class Note:
             xElem.text = "%s" % p[0]
             yElem.text = "%s" % p[1]
 
+        lineElem = etree.SubElement(noteExp, "geometry")
+        for p in self.line:
+            pElem = etree.SubElement(lineElem, "point")
+            xElem = etree.SubElement(pElem, "x")
+            yElem = etree.SubElement(pElem, "y")
+            xElem.text = "%s" % p[0]
+            yElem.text = "%s" % p[1]
         return noteExp
 
     cpdef toXML(self):
