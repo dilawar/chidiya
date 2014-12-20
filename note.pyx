@@ -1,6 +1,6 @@
 """note.py: Class representing a note.
 
-Last modified: Sat Dec 20, 2014  08:26PM
+Last modified: Sat Dec 20, 2014  09:02PM
 
 """
     
@@ -86,20 +86,19 @@ cdef class Note:
 
     cpdef computeAll(self, image):
         if self.computed == 0:
+            self.smoothen()
             self.computeGeometry()
             for p in self.points:
                 self.energy += image[p[0], p[1]] 
             self.time = g.dt * self.startx
-            self.smoothen(image)
-            self.computeLine(image)
             self.computed = 1
 
-    cdef smoothen(self, image):
+    cdef smoothen(self):
         """Smoothen out a note """
         cdef int i = 0
         vals = np.zeros(len(self.points))
         for i, p in enumerate(self.points):
-            vals[i] = image[p[0], p[1]]
+            vals[i] = g.image_[p[0], p[1]]
 
         minV, maxV, avgV = vals.min(), vals.max(), np.average(vals)
         validPoints = []
@@ -108,21 +107,25 @@ cdef class Note:
             else: validPoints.append(p)
         self.points = validPoints 
 
-    cdef computeLine(self, image):
+    cdef computeLine(self):
         """Construct a line for a note """
         cdef double sums, weights 
         cdef int x
         pointDict = defaultdict(set)
         for x, y in sorted(self.points):
             pointDict[x].add(y)
-        for x in pointDict:
+        lineDict = {}
+        for x in sorted(pointDict):
             sums = 0.0
             weights = 0.0
             ps = pointDict[x]
-            for y in ps:
-                sums += (y * image[x, y])
-                weights += image[x, y]
-            self.line.append([x, int(sums/weights)])
+            #for y in ps:
+                #sums += (y * g.image_[x, y])
+                #weights += g.image_[x, y]
+            #lineDict[x] = int(sums / weights)
+            lineDict[x] = int(float(sum(ps)) / len(ps))
+        for k in lineDict:
+            self.line.append((k, lineDict[k]))
         sorted(self.line)
 
     cdef computeGeometry(self):
@@ -131,8 +134,9 @@ cdef class Note:
             self.starty = min(self.ypoints)
             self.width = max(self.xpoints) - self.startx
             self.height = max(self.ypoints) - self.starty
-            self.geometryComputed = 1
+            self.computeLine()
             self.timeWidth = self.width * g.dt 
+            self.geometryComputed = 1
 
     def __repr__(self):
         msg = "start={},energy={},width={},height={}".format(
