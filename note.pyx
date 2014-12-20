@@ -1,6 +1,6 @@
 """note.py: Class representing a note.
 
-Last modified: Sat Dec 20, 2014  06:02PM
+Last modified: Sat Dec 20, 2014  06:57PM
 
 """
     
@@ -201,15 +201,15 @@ cdef class Note:
         #points = np.asarray(points)
         #cv2.fillConvexPoly(img, points, 1)
         for p in self.points:
-            img[p[0], p[1]] = 0
+            img[p[0], p[1]] = 255 - g.image_[p[0], p[1]]
 
     cpdef plotGeom(self, img):
         cdef int i = 0
         for i, p in enumerate(self.line[:-2]):
             startP = self.line[i]
             stopP = self.line[i+1]
-            #cv2.line(img, (startP[1], startP[0]), (stopP[1], stopP[0]), (0,0,0))
-            img[p[0], p[1]] = 0
+            cv2.line(img, (startP[1], startP[0]), (stopP[1], stopP[0]), (0,0,0))
+            #img[p[0], p[1]] = 0
 
     
     # This function is also called from python. Therefore cpdef instead of cdef.
@@ -237,5 +237,12 @@ cdef class Note:
                 , maxWidthOfNote)
                 )
             return False
+
+        
+        if(self.height >  2 * self.width):
+            g.logger.info("Width of this note is smallar then its 2 * height"
+                    )
+            return False
+
         return True
 

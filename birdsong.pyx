@@ -1,8 +1,9 @@
 """birdsong.py: 
+    image_ = None
 
     Process the data in birdsong.
 
-Last modified: Sat Dec 20, 2014  06:32PM
+Last modified: Sat Dec 20, 2014  06:57PM
 
 """
     
@@ -57,7 +58,10 @@ class BirdSong:
 
         # Bottom-line of notes, anything near to it are ingnored. These are
         # caused by low-frequencies sound.
-        self.bottomline = 0
+        self.bottomline = 250
+
+        # Topline in spectogram. Very high frequency noise
+        self.topline = 0
 
     def filterAndSort(self):
         """Filter notes and then sort all of them
@@ -77,12 +81,20 @@ class BirdSong:
         # Calculate the bottomline here
         startys = [ n.starty for n in self.notes ]
         self.bottomline = max(startys)
+        pu.dump("INFO", "Setting topline to 30% of bottomline")
+        self.topline = 0.3 * self.bottomline
 
         for i, n in enumerate(self.notes):
             if n.starty > 0.9 * self.bottomline:
                 g.logger.info("[REJECTED] %s ." % n 
                         + " Way too close to bottomline " 
                         + " bottomline is %s " % self.bottomline  
+                        + " note is at %s " % n.starty
+                        )
+            elif n.starty < self.topline:
+                g.logger.info("[REJECTED] %s" % n
+                        + " Way to close to topline "
+                        + "topline is %s " % self.topline 
                         + " note is at %s " % n.starty
                         )
             else:
@@ -178,6 +190,10 @@ class BirdSong:
             self.croppedImage = self.algo.autoCrop(self.image, threshold)
         else:
             self.croppedImage = self.image
+
+        # Create a global copy for further reference.
+        g.image_ = np.copy(self.croppedImage)
+
         img = np.copy(self.croppedImage)
         self.averagePixalVal = img.mean()
         g.logger.debug("+ Average pixal value is %s " % self.averagePixalVal)

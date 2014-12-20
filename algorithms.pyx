@@ -1,4 +1,5 @@
 """algorithms.py: 
+            
 
     All of my algorithms to detect pattern in image should be here.
 

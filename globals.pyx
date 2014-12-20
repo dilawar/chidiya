@@ -42,6 +42,7 @@ logger.addHandler(ch)
 # @brief Configuration read from the file
 config_ = None
 args_ = None 
+image_ = None
 
 # Global debug level
 verbosity_ = 0
