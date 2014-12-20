@@ -2,7 +2,7 @@
 
     Class to process notes.
 
-Last modified: Fri Dec 19, 2014  08:13AM
+Last modified: Sat Dec 20, 2014  04:12AM
 
 """
     
@@ -65,6 +65,7 @@ class ProcessNotes():
         self.notes = noteXml.findall('note')
 
     def getSongs(self):
+        """Get all the songs from the collection of notes. """
         pu.dump("INFO", "Searching for songs in note")
         startTime = np.zeros(len(self.notes))
         energy = np.zeros(len(self.notes))
@@ -92,6 +93,7 @@ class ProcessNotes():
             nt = n.time
             songNotes.append(n)
             if nt - currTime >= self.minSongSep:
+                g.logger.info("A song boundry found at %s " % nt)
                 songNos += 1
                 for n in songNotes:
                     sElem.append(n)

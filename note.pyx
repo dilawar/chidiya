@@ -1,6 +1,6 @@
 """note.py: Class representing a note.
 
-Last modified: Fri Dec 19, 2014  07:49AM
+Last modified: Sat Dec 20, 2014  05:45AM
 
 """
     
@@ -18,10 +18,11 @@ import numpy as np
 import cv2
 from lxml import etree
 import globals as g
+from collections import defaultdict
 
 cdef class Note:
 
-    cdef object origin, points, xpoints, ypoints, hull
+    cdef object origin, points, xpoints, ypoints, hull, line
     cdef double energy, width, height
     cdef int computed, geometryComputed
     cdef int startx, starty
@@ -55,6 +56,10 @@ cdef class Note:
         def __get__(self): return self.time
         def __set__(self, v): self.time = v
 
+    property line:
+        def __get__(self): return self.line 
+        def __set__(self, v): self.line = v
+
     def __cinit__(self, x, y):
         self.origin = (x, y)
         self.energy = 0.0
@@ -70,6 +75,7 @@ cdef class Note:
         self.starty = 0
         self.xscale = 1.0
         self.time = 0.0
+        self.line = []
 
     cpdef computeAll(self, image):
         if self.computed == 0:
@@ -77,7 +83,24 @@ cdef class Note:
             for p in self.points:
                 self.energy += image[p[0], p[1]] 
             self.time = g.xscale * self.startx
+            self.computeLine(image)
             self.computed = 1
+
+    cdef computeLine(self, image):
+        """Construct a line for a note """
+        cdef double sums, weights 
+        cdef int x
+        pointDict = defaultdict(set)
+        for x, y in sorted(self.points):
+            pointDict[x].add(y)
+        sums = 0.0
+        weights = 0.0
+        for x in pointDict:
+            ps = pointDict[x]
+            for y in ps:
+                sums += (x * image[x, y])
+                weights += image[x, y]
+            self.line.append([x, y])
 
     cdef computeGeometry(self):
         if self.geometryComputed == 0:
@@ -146,16 +169,14 @@ cdef class Note:
         self.xpoints.append(x)
         self.ypoints.append(y)
         self.points.append(point)
-
-##
-# @brief Plot the note. We need to change the index of points before using
-# fillConvexPoly function.
-#
-# @param img Image onto which points needs to be plotted.
-# @param kwargs
-#
-# @return None.
-
+    
+    ##
+    # fillConvexPoly function.
+    #
+    # @param img Image onto which points needs to be plotted.
+    #
+    # @return None.
+    
     cpdef plot(self, img):
         points = [[p[1], p[0]] for p in self.points]
         points = np.asarray(points)
