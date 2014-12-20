@@ -8,26 +8,28 @@ repository_url: http://github.com/dilawar/chidiya
 ## What `chidiya` does?
 
 This cython application __chidiya__ (चिड़िया) -- Hindustani for bird -- is a work in
-progress. It claims to do the following:
+progress. For now, it claims to do the following:
 
 - _Read recorded bird-songs_ (`aiff` file format) and create a spectogram like the one show below.
 
 ![spectogram]({{ site.url }}/_data/spectogram.png)
 
-- _Extract `notes`_. A small section of the spectogram is shown below. Lower pane
-  is raw spectogram, the upper pane shows extracted notes.
+- _Extract `notes`_ and approximate them with simple lines. A small section of
+  the spectogram is shown below. Lower pane is raw spectogram, the upper pane
+  shows extracted notes, the middle one is their approximation using simple
+  lines.
 
 ![Extracted notes]( {{ site.url }}/_data/notes.png )
 
 The parameters in _config_ file determines the detected notes. The lighter notes
 are ignored by the parameters.
 
-- _Serialize the notes_ in XML format.
+- _Serialize notes_ in XML format.
 
 - Process stored notes in an XML file and cluster them according to temporal
-  variation. It calls them song. [In progress]
+  variation. It calls them song. Serialize the song into XML. [In progress]
 
-## How to use the program 
+## How to use this program 
 
 Since it is a cython program, you need to build the application using `setup.py`
 file. You would need cython installed on your system.
