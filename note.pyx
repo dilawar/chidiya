@@ -93,6 +93,9 @@ cdef class Note:
             self.computeLine(image)
             self.computed = 1
 
+    cdef sortPoint(self, points):
+        pass
+
     cdef computeLine(self, image):
         """Construct a line for a note """
         cdef double sums, weights 
@@ -108,6 +111,7 @@ cdef class Note:
                 sums += (y * image[x, y])
                 weights += image[x, y]
             self.line.append([x, int(sums/weights)])
+        sorted(self.line)
 
     cdef computeGeometry(self):
         if self.geometryComputed == 0:
@@ -193,17 +197,19 @@ cdef class Note:
     # @return None.
     
     cpdef plot(self, img):
-        points = [[p[1], p[0]] for p in self.points]
-        points = np.asarray(points)
-        cv2.fillConvexPoly(img, points, 1)
+        #points = [[p[1], p[0]] for p in self.points]
+        #points = np.asarray(points)
+        #cv2.fillConvexPoly(img, points, 1)
+        for p in self.points:
+            img[p[0], p[1]] = 0
 
     cpdef plotGeom(self, img):
         cdef int i = 0
         for i, p in enumerate(self.line[:-2]):
             startP = self.line[i]
             stopP = self.line[i+1]
-            cv2.line(img, (startP[1], startP[0]), (stopP[1], stopP[0]), (0,0,0))
-            #img[p[0], p[1]] = 0
+            #cv2.line(img, (startP[1], startP[0]), (stopP[1], stopP[0]), (0,0,0))
+            img[p[0], p[1]] = 0
 
     
     # This function is also called from python. Therefore cpdef instead of cdef.

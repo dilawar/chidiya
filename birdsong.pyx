@@ -2,7 +2,7 @@
 
     Process the data in birdsong.
 
-Last modified: Sat Dec 20, 2014  05:49PM
+Last modified: Sat Dec 20, 2014  06:32PM
 
 """
     
@@ -88,6 +88,7 @@ class BirdSong:
             else:
                 validNotes.append(n)
         self.notes = sorted(validNotes[:], key = lambda note : note.startx)
+        pu.dump("INFO", "Total {} notes".format(len(self.notes)))
 
 
     def updateBaseline(self, index, note):
