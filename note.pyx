@@ -221,7 +221,7 @@ cdef class Note:
 
     cpdef plotGeom(self, img):
         cdef int i = 0
-        for i, p in enumerate(self.line[:-2]):
+        for i, p in enumerate(self.line[:-1]):
             startP = self.line[i]
             stopP = self.line[i+1]
             cv2.line(img, (startP[1], startP[0]), (stopP[1], stopP[0]), (0,0,0))

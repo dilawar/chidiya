@@ -3,7 +3,7 @@
 
     Process the data in birdsong.
 
-Last modified: Sun Dec 21, 2014  01:32AM
+Last modified: Sun Dec 21, 2014  02:36AM
 
 """
     
@@ -252,8 +252,7 @@ class BirdSong:
         self.geomImage = np.empty(shape=self.croppedImage.shape, dtype=np.int8)
         titleText = [ "{}:{}".format(va[0], va[1]) for va in (g.config_.items('note'))]
 
-        ax1.set_title(" ".join(titleText))
-        ax1.set_label("Sampling freq {}".format(g.sampling_freq))
+        ax1.set_title("Extracted notes from spectrogram")
         self.notesImage.fill(255)
         self.geomImage.fill(255)
 
@@ -261,15 +260,19 @@ class BirdSong:
             note.plot(self.notesImage)
             note.plotGeom(self.geomImage)
         ax1.imshow(self.notesImage, cmap=pylab.gray())
+
+        ax2.set_title("Approximation of note with simple  line")
         ax2.imshow(self.geomImage, cmap=pylab.gray())
 
 
         ax3.imshow(self.croppedImage)
+        ax3.set_title("Raw spectrogram for time %s " % g.config_.get('global',
+            'time'))
         if not filename:
             pylab.show()
         else:
             filename = os.path.join(g.outdir, filename)
-            pu.log("STEP", "Saving notes and image to %s" % filename)
+            pu.log("STEP", "Saving notes and image to %s sec" % filename)
             pylab.savefig(filename)
 
     def testImage(self):
