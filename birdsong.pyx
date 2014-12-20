@@ -3,7 +3,7 @@
 
     Process the data in birdsong.
 
-Last modified: Sat Dec 20, 2014  08:37PM
+Last modified: Sat Dec 20, 2014  10:23PM
 
 """
     
@@ -69,9 +69,11 @@ class BirdSong:
         # This sorting is done according to y position. Lower the startx
         # position better chance of it being a note.
         if self.isCropped:
-            g.logger.info("Image was cropped before processing." 
-                " Not doing the base-line test"
-                )
+            pu.log("WARN"
+                    , "Image was cropped before processing." 
+                    " Not doing the base-line test"
+                    , verbosity = 2
+                    )
             self.notes = sorted(self.notes, key=lambda note: note.startx)
             return 
 
@@ -81,26 +83,31 @@ class BirdSong:
         # Calculate the bottomline here
         startys = [ n.starty for n in self.notes ]
         self.bottomline = max(startys)
-        pu.dump("INFO", "Setting topline to 30% of bottomline")
+        pu.log("INFO"
+                , "Setting topline to 30% of bottomline"
+                , verbosity = 2
+                )
         self.topline = 0.3 * self.bottomline
 
         for i, n in enumerate(self.notes):
             if n.starty > 0.9 * self.bottomline:
-                g.logger.info("[REJECTED] %s ." % n 
+                pu.log("REJECTED", "%s" % n 
                         + " Way too close to bottomline " 
                         + " bottomline is %s " % self.bottomline  
                         + " note is at %s " % n.starty
+                        , verbosity = 3
                         )
             elif n.starty < self.topline:
-                g.logger.info("[REJECTED] %s" % n
+                pu.log("REJECTED",  "%s" % n
                         + " Way to close to topline "
                         + "topline is %s " % self.topline 
                         + " note is at %s " % n.starty
+                        , verbosity = 3
                         )
             else:
                 validNotes.append(n)
         self.notes = sorted(validNotes[:], key = lambda note : note.startx)
-        pu.dump("INFO", "Total {} notes".format(len(self.notes)))
+        pu.log("INFO", "Total {} notes".format(len(self.notes)))
 
 
     def updateBaseline(self, index, note):
@@ -111,9 +118,10 @@ class BirdSong:
         totalNotes = len(self.notes)
         self.baseline = (self.baseline * totalNotes + note.starty) / (totalNotes + 1)
         if note.starty > 1.1 * self.baseline:
-            g.logger.info("++ Very much away for the baseline: {} ~ {}".format(
-                note.starty, self.baseline)
-                )
+            pu.log("STEP",
+                    "++ Very much away for the baseline: {} ~ {}".format(
+                        note.starty, self.baseline)
+                    )
             return False
         else:
             #print("++ Note index {} should be inserted".format(index))
@@ -121,7 +129,7 @@ class BirdSong:
 
 
     def extractNotes(self, **kwargs):
-        g.logger.info("STEP: Processing the speech data")
+        pu.log("STEP", "Processing the speech data")
         self.time = float(g.config_.get('global', 'time'))
 
         self.start_time = float(g.config_.get('global', 'start_time'))
@@ -133,7 +141,7 @@ class BirdSong:
             stop = self.start_index + int(self.time * g.sampling_freq)
 
         data = self.data[self.start_index:stop]
-        g.logger.info("|- Processing index %s to %s" % (self.start_index, stop))
+        pu.log("INFO", "Processing index %s to %s" % (self.start_index, stop))
         #data = dsp.filterData(data, g.sampling_freq)
         self.Pxx, self.frequencies, self.bins, self.imageH = dsp.spectogram(
                 data
@@ -143,14 +151,14 @@ class BirdSong:
 
         # Use Wiener filter for noise-removal. Median-filter does not work at
         # all. Don't even think about using it.
-        g.logger.info("+ Using wiener filter of size 5 on the image")
+        pu.log("INFO", "+ Using wiener filter of size 5 on the image")
         self.imageMat = scipy.signal.wiener(self.imageMat, 5)
 
         zoom = [float(g.config_.get('global', 'y_zoom'))
                 , float(g.config_.get('global', 'x_zoom'))
                 ]
 
-        pu.dump("INFO", "Zooming in image in both directions: %s " % zoom)
+        pu.log("INFO", "Zooming in image in both directions: %s " % zoom)
         self.imageMat = ndimage.interpolation.zoom(
                 self.imageMat
                 , zoom
@@ -160,7 +168,7 @@ class BirdSong:
 
         g.dt = 128.0 / (float(g.config_.get('global', 'x_zoom')) * g.sampling_freq)
         g.yscale = 1.0 / float(g.config_.get('global', 'y_zoom')) 
-        pu.dump("INFO"
+        pu.log("INFO"
                 , [ "Scaling spectogram. Computing scales"
                     , "dt = %s " % g.dt 
                     , "yscale = %s " % g.yscale 
@@ -179,7 +187,7 @@ class BirdSong:
         #self.plotNotes(filename = None)
 
     def getNotes(self, **kwargs):
-        g.logger.info("Read image in GRAYSCALE mode to detect edges")
+        pu.log("STEP", "Read image in GRAYSCALE mode to detect edges")
         self.image = cv2.imread(self.filename, 0)
         assert self.image.max() <= 255, "Expecting <= 255, got %s" % self.image.max()
 
@@ -207,17 +215,17 @@ class BirdSong:
         assert len(self.notes) > 0, "There must be non-zero notes"
 
         if g.args_.note_file is None:
-            pu.dump("INFO", "Setting note file to %s" % g.args_.note_file)
+            pu.log("INFO", "Setting note file to %s" % g.args_.note_file)
             g.args_.note_file = os.path.join(g.outdir, "note.dat")
 
-        pu.dump("INFO", [ "Writings notes to {}".format(g.args_.note_file)])
+        pu.log("INFO", [ "Writings notes to {}".format(g.args_.note_file)])
         noteXml = etree.Element("notes")
         with open(g.args_.note_file, "wb") as f:
             for n in self.notes:
                 noteXml.append(n.toElementTree())
 
         with open(g.args_.note_file, "w") as xmlFile:
-            pu.dump("INFO", "Writing notes to %s" % xmlFile.name)
+            pu.log("INFO", "Writing notes to %s" % xmlFile.name)
             xmlFile.write(etree.tostring(noteXml, pretty_print=True))
         
 
@@ -259,7 +267,7 @@ class BirdSong:
             pylab.show()
         else:
             filename = os.path.join(g.outdir, filename)
-            g.logger.info("Saving notes and image to %s" % filename)
+            pu.log("STEP", "Saving notes and image to %s" % filename)
             pylab.savefig(filename)
 
     def testImage(self):

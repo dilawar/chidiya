@@ -3,7 +3,7 @@
 
     All of my algorithms to detect pattern in image should be here.
 
-Last modified: Mon Dec 15, 2014  05:47AM
+Last modified: Sat Dec 20, 2014  10:29PM
 
 """
     
@@ -21,6 +21,7 @@ import pylab
 import cv2
 import numpy as np
 import note
+import pyhelper.print_utils as pu
 
 cdef class Algorithms:
 
@@ -77,7 +78,7 @@ cdef class Algorithms:
     cdef findNotes(self, threshold = None):
         """Find notes in the given image """
         notes = []
-        g.logger.info("Find notes in the image")
+        pu.log("INFO", "Find notes in the image")
         # 1. Find the lowest pixel (darkest one) x.
         # 2. Use slithrine algorithm to get the note.
         # 3. Delete the note from the figure (make all pixel equal to 255).
@@ -86,11 +87,12 @@ cdef class Algorithms:
         fracOfAvg = float(g.config_.get('note', 'maxval_pixal')) 
         maxvalOfStartPixel = fracOfAvg * self.image.mean()
         threshold = float(g.config_.get('note', 'boundary_threshold')) * maxvalOfStartPixel
-        g.logger.debug("++ Slither start point {}, threshold {}".format(
-            maxvalOfStartPixel
-            , threshold)
-            )
-
+        pu.log("INFO"
+                , "Slither start point {}, threshold {}".format(
+                    maxvalOfStartPixel
+                    , threshold
+                    )
+                )
         while minPixel < maxvalOfStartPixel:
             minPixel = self.image.min()
             startPixels = self.searchForPixels(self.image, minPixel)
@@ -99,7 +101,10 @@ cdef class Algorithms:
                 if self.image[x, y] == minPixel:
                     note = self.slither(x, y, minPixel, threshold)
                     if note is not None:
-                        g.logger.info("Found a note: %s" % note)
+                        pu.log("STEP"
+                                , "Found a note: %s" % note
+                                , verbosity = 3
+                                )
                         notes.append(note)
                 else:
                     g.logger.debug("This starting pixel is already part of some note")
@@ -143,7 +148,7 @@ cdef class Algorithms:
     #
     # @return 
     def notes(self, image):
-        g.logger.info("Find points on the image which belongs to edges")
+        pu.log("INFO", "Find points on the image which belongs to edges")
         # By now we have removed all the rows which do not have any interesting
         # pixels. This has reduced our search size. Now in this matrix, we need to
         # locate islands which belongs to notes. The islands must be separated by

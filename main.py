@@ -1,6 +1,6 @@
 """ Starting point of the program.
 
-Last modified: Fri Dec 19, 2014  04:58PM
+Last modified: Sat Dec 20, 2014  10:15PM
 
 """
     
@@ -33,7 +33,7 @@ def main(config):
     outsubdir = "_%s_data_" % os.path.basename(g.args_.input_song)
     g.outdir = os.path.join(outdir, outsubdir)
     if not os.path.exists(g.outdir):
-        g.logger.debug("Creating directory %s" % g.outdir)
+        pu.log("STEP", "Creating directory %s " % g.outdir)
         os.makedirs(g.outdir)
         assert os.path.exists(g.outdir), "Failed to create"
 
