@@ -47,7 +47,7 @@ args_ = None
 verbosity_ = 0
 
 sampling_freq = 0.0
-xscale = 1.0
+dt = 1.0
 yscale = 1.0
 
 # Timestamping

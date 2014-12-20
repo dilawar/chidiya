@@ -2,7 +2,7 @@
 
     Process the data in birdsong.
 
-Last modified: Fri Dec 19, 2014  01:03AM
+Last modified: Sat Dec 20, 2014  05:49PM
 
 """
     
@@ -145,11 +145,11 @@ class BirdSong:
                 , prefilter = True
                 )
 
-        g.xscale = 128.0 / (float(g.config_.get('global', 'x_zoom')) * g.sampling_freq)
+        g.dt = 128.0 / (float(g.config_.get('global', 'x_zoom')) * g.sampling_freq)
         g.yscale = 1.0 / float(g.config_.get('global', 'y_zoom')) 
         pu.dump("INFO"
                 , [ "Scaling spectogram. Computing scales"
-                    , "xscale = %s " % g.xscale 
+                    , "dt = %s " % g.dt 
                     , "yscale = %s " % g.yscale 
                     ]
                 )
@@ -218,17 +218,26 @@ class BirdSong:
     def plotNotes(self, filename = None):
         # Plot the notes.
         fig = pylab.figure()
-        ax1 = fig.add_subplot(211)
-        ax2 = fig.add_subplot(212)
+        ax1 = fig.add_subplot(311)
+        ax2 = fig.add_subplot(312)
+        ax3 = fig.add_subplot(313)
         self.notesImage = np.empty(shape=self.croppedImage.shape, dtype=np.int8)
+        self.geomImage = np.empty(shape=self.croppedImage.shape, dtype=np.int8)
         titleText = [ "{}:{}".format(va[0], va[1]) for va in (g.config_.items('note'))]
+
         ax1.set_title(" ".join(titleText))
         ax1.set_label("Sampling freq {}".format(g.sampling_freq))
         self.notesImage.fill(255)
+        self.geomImage.fill(255)
+
         for note in self.notes:
             note.plot(self.notesImage)
-        ax2.imshow(self.croppedImage)
+            note.plotGeom(self.geomImage)
         ax1.imshow(self.notesImage, cmap=pylab.gray())
+        ax2.imshow(self.geomImage, cmap=pylab.gray())
+
+
+        ax3.imshow(self.croppedImage)
         if not filename:
             pylab.show()
         else:

@@ -1,6 +1,6 @@
 """note.py: Class representing a note.
 
-Last modified: Sat Dec 20, 2014  05:54AM
+Last modified: Sat Dec 20, 2014  06:02PM
 
 """
     
@@ -26,7 +26,8 @@ cdef class Note:
     cdef double energy, width, height
     cdef int computed, geometryComputed
     cdef int startx, starty
-    cdef double xscale, time
+    cdef double dt, time
+    cdef double timeWidth 
 
     property points:
         def __get__(self): return self.points
@@ -48,9 +49,9 @@ cdef class Note:
         def __get__(self): return self.height
         def __set__(self, v): self.height = v
 
-    property xscale:
-        def __get__(self): return self.xscale 
-        def __set__(self, v): self.xscale = v
+    property dt:
+        def __get__(self): return self.dt 
+        def __set__(self, v): self.dt = v
 
     property time:
         def __get__(self): return self.time
@@ -59,6 +60,10 @@ cdef class Note:
     property line:
         def __get__(self): return self.line 
         def __set__(self, v): self.line = v
+     
+    property timeWidth:
+        def __get__(self): return self.timeWidth 
+        def __set__(self, v): self.timeWidth = v
 
     def __cinit__(self, x, y):
         self.origin = (x, y)
@@ -73,8 +78,10 @@ cdef class Note:
         self.geometryComputed = 0
         self.startx = 0
         self.starty = 0
-        self.xscale = 1.0
+        # Multiply pixel x-index with this number and you get the time.
+        self.dt = 1.0
         self.time = 0.0
+        self.timeWidth = 0.0
         self.line = []
 
     cpdef computeAll(self, image):
@@ -82,7 +89,7 @@ cdef class Note:
             self.computeGeometry()
             for p in self.points:
                 self.energy += image[p[0], p[1]] 
-            self.time = g.xscale * self.startx
+            self.time = g.dt * self.startx
             self.computeLine(image)
             self.computed = 1
 
@@ -109,6 +116,7 @@ cdef class Note:
             self.width = max(self.xpoints) - self.startx
             self.height = max(self.ypoints) - self.starty
             self.geometryComputed = 1
+            self.timeWidth = self.width * g.dt 
 
     def __repr__(self):
         msg = "start={},energy={},width={},height={}".format(
@@ -127,7 +135,7 @@ cdef class Note:
                     )
         # Else create a xml representation.
         noteExp = etree.Element("note")
-        noteExp.set('xscale', "%s" % g.xscale)
+        noteExp.set('dt', "%s" % g.dt)
         noteExp.set('yscale',"%s" % g.yscale)
 
         startxElem = etree.SubElement(noteExp, "startx")
@@ -189,22 +197,38 @@ cdef class Note:
         points = np.asarray(points)
         cv2.fillConvexPoly(img, points, 1)
 
+    cpdef plotGeom(self, img):
+        cdef int i = 0
+        for i, p in enumerate(self.line[:-2]):
+            startP = self.line[i]
+            stopP = self.line[i+1]
+            cv2.line(img, (startP[1], startP[0]), (stopP[1], stopP[0]), (0,0,0))
+            #img[p[0], p[1]] = 0
+
     
     # This function is also called from python. Therefore cpdef instead of cdef.
     cpdef isValid(self):
         """Check if a given note is acceptable or note.
         """
         cdef int minPixelsInNote = int(g.config_.get('note', 'min_pixels'))
-        cdef int minWidthOfNote = int(g.config_.get('note', 'min_width'))
+        cdef double minWidthOfNote = float(g.config_.get('note', 'min_width'))
+        cdef double maxWidthOfNote = float(g.config_.get('note', 'max_width'))
 
         if len(self.points) < minPixelsInNote:
             g.logger.debug("Not enough points in this note. Rejecting")
             return False
 
         self.computeGeometry()
-        if(self.width < minWidthOfNote):
+        if(self.timeWidth < minWidthOfNote):
             g.logger.info("Width of this note ({}) is not enough (< {})".format(
                 self.width, minWidthOfNote)
+                )
+            return False
+
+        if(self.timeWidth > maxWidthOfNote):
+            g.logger.info("Width of this note {} is larger than max {}".format(
+                self.timeWidth 
+                , maxWidthOfNote)
                 )
             return False
         return True
