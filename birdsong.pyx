@@ -87,46 +87,27 @@ class BirdSong:
                 , "Setting topline to 30% of bottomline"
                 , verbosity = 2
                 )
+
         self.topline = 0.3 * self.bottomline
 
         for i, n in enumerate(self.notes):
-            if n.starty > 0.9 * self.bottomline:
+            if self.bottomline - n.starty < 25:
                 pu.log("REJECTED", "%s" % n 
                         + " Way too close to bottomline " 
                         + " bottomline is %s " % self.bottomline  
                         + " note is at %s " % n.starty
-                        , verbosity = 3
                         )
             elif n.starty < self.topline:
                 pu.log("REJECTED",  "%s" % n
                         + " Way to close to topline "
                         + "topline is %s " % self.topline 
                         + " note is at %s " % n.starty
-                        , verbosity = 3
                         )
             else:
                 n.computeLine()
                 validNotes.append(n)
         self.notes = sorted(validNotes[:], key = lambda note : note.startx)
         pu.log("INFO", "Total {} notes".format(len(self.notes)))
-
-
-    def updateBaseline(self, index, note):
-        """Update the base line.
-        If the given note is below baseline (1.1 factor) then return False,
-        else return True.
-        """
-        totalNotes = len(self.notes)
-        self.baseline = (self.baseline * totalNotes + note.starty) / (totalNotes + 1)
-        if note.starty > 1.1 * self.baseline:
-            pu.log("STEP",
-                    "++ Very much away for the baseline: {} ~ {}".format(
-                        note.starty, self.baseline)
-                    )
-            return False
-        else:
-            #print("++ Note index {} should be inserted".format(index))
-            return True
 
 
     def extractNotes(self, **kwargs):
@@ -180,6 +161,7 @@ class BirdSong:
         # array.
 
         #self.testImage()
+
         pu.log("STEP", "Saving spectogram to %s " % self.filename, verbosity=0)
         g.image_ = self.imageMat
         pylab.imsave(self.filename, self.imageMat)
@@ -263,7 +245,6 @@ class BirdSong:
 
         ax2.set_title("Approximation of note with simple  line")
         ax2.imshow(self.geomImage, cmap=pylab.gray())
-
 
         ax3.imshow(self.croppedImage)
         ax3.set_title("Raw spectrogram for time %s " % g.config_.get('global',

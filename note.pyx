@@ -1,6 +1,6 @@
 """note.py: Class representing a note.
 
-Last modified: Sun Dec 21, 2014  02:11AM
+Last modified: Sun Dec 21, 2014  05:14AM
 
 """
     
@@ -24,8 +24,8 @@ import pyhelper.print_utils as pu
 cdef class Note:
 
     cdef object origin, points, xpoints, ypoints, hull, line
-    cdef double energy, width, height
-    cdef int computed, geometryComputed
+    cdef double energy, height
+    cdef int width, computed, geometryComputed
     cdef int startx, starty
     cdef double dt, time
     cdef double timeWidth 
@@ -69,7 +69,7 @@ cdef class Note:
     def __cinit__(self, x, y):
         self.origin = (x, y)
         self.energy = 0.0
-        self.width = 0.0
+        self.width = 0
         self.height = 0.0
         self.hull = None
         self.points = []
@@ -221,20 +221,19 @@ cdef class Note:
 
     cpdef plotGeom(self, img):
         cdef int i = 0
-        for i, p in enumerate(self.line[:-1]):
-            startP = self.line[i]
-            stopP = self.line[i+1]
-            cv2.line(img, (startP[1], startP[0]), (stopP[1], stopP[0]), (0,0,0))
-
-        #for p in self.line:
-            #img[p[0], p[1]] = 0
+        #for i, p in enumerate(self.line[:-1]):
+        #    startP = self.line[i]
+        #    stopP = self.line[i+1]
+        #    cv2.line(img, (startP[1], startP[0]), (stopP[1], stopP[0]), (0,0,0))
+        for p in self.line:
+            img[p[0], p[1]] = 0
     
     # This function is also called from python. Therefore cpdef instead of cdef.
     cpdef isValid(self):
         """Check if a given note is acceptable or note.
         """
         cdef int minPixelsInNote = int(g.config_.get('note', 'min_pixels'))
-        cdef double minWidthOfNote = float(g.config_.get('note', 'min_width'))
+        cdef int minWidthOfNote = int(g.config_.get('note', 'min_width'))
         cdef double maxWidthOfNote = float(g.config_.get('note', 'max_width'))
 
         if len(self.points) < minPixelsInNote:
@@ -242,7 +241,7 @@ cdef class Note:
             return False
 
         self.computeGeometry()
-        if(self.timeWidth < minWidthOfNote):
+        if(self.width < minWidthOfNote):
             pu.log("TEST"
                     , "Width of this note ({}) is not enough (< {})".format(
                         self.width, minWidthOfNote
