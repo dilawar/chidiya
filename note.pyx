@@ -1,6 +1,6 @@
 """note.py: Class representing a note.
 
-Last modified: Sat Dec 20, 2014  06:57PM
+Last modified: Sat Dec 20, 2014  08:26PM
 
 """
     
@@ -90,11 +90,23 @@ cdef class Note:
             for p in self.points:
                 self.energy += image[p[0], p[1]] 
             self.time = g.dt * self.startx
+            self.smoothen(image)
             self.computeLine(image)
             self.computed = 1
 
-    cdef sortPoint(self, points):
-        pass
+    cdef smoothen(self, image):
+        """Smoothen out a note """
+        cdef int i = 0
+        vals = np.zeros(len(self.points))
+        for i, p in enumerate(self.points):
+            vals[i] = image[p[0], p[1]]
+
+        minV, maxV, avgV = vals.min(), vals.max(), np.average(vals)
+        validPoints = []
+        for p in self.points:
+            if g.image_[p[0], p[1]] >  avgV: pass
+            else: validPoints.append(p)
+        self.points = validPoints 
 
     cdef computeLine(self, image):
         """Construct a line for a note """
@@ -201,15 +213,15 @@ cdef class Note:
         #points = np.asarray(points)
         #cv2.fillConvexPoly(img, points, 1)
         for p in self.points:
-            img[p[0], p[1]] = 255 - g.image_[p[0], p[1]]
+            img[p[0], p[1]] = g.image_[p[0], p[1]]
 
     cpdef plotGeom(self, img):
         cdef int i = 0
         for i, p in enumerate(self.line[:-2]):
             startP = self.line[i]
             stopP = self.line[i+1]
-            cv2.line(img, (startP[1], startP[0]), (stopP[1], stopP[0]), (0,0,0))
-            #img[p[0], p[1]] = 0
+            #cv2.line(img, (startP[1], startP[0]), (stopP[1], stopP[0]), (0,0,0))
+            img[p[0], p[1]] = 0
 
     
     # This function is also called from python. Therefore cpdef instead of cdef.
