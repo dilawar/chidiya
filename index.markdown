@@ -77,5 +77,5 @@ what it does. The performance of this program is very sensitive to what is
 described in configuration file. You must pass the location of configuration
 file. The default location is `chidiya.conf` located in the same directory in
 which you run this application. You need to modify the parameters as suggested
-in [configuration]({% post_url chidiya/2014-12-10-Configuration %}) section.
+in __Configuration__ section.
 
