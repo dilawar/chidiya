@@ -3,7 +3,7 @@
 
     Process the data in birdsong.
 
-Last modified: Sun Dec 21, 2014  07:20AM
+Last modified: Sun Dec 21, 2014  07:36AM
 
 """
     
@@ -168,7 +168,6 @@ class BirdSong:
         #self.testImage()
 
         pu.log("STEP", "Saving spectogram to %s " % self.filename, verbosity=0)
-        g.image_ = self.imageMat
         pylab.imsave(self.filename, self.imageMat)
         pylab.close()
         self.getNotes()

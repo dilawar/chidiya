@@ -1,6 +1,6 @@
 """note.py: Class representing a note.
 
-Last modified: Sun Dec 21, 2014  05:14AM
+Last modified: Sun Dec 21, 2014  07:37AM
 
 """
     
