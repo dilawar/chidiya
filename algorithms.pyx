@@ -46,7 +46,8 @@ cdef class Algorithms:
         newImage = []
         for i, row in enumerate(image):
             if row.min() < threshold:
-                newImage.append(row)
+                if row.mean() <= 180: pass
+                else: newImage.append(row)
             else:
                 # This row does not contain any signal. So screw it. 
                 # NOTE: This works because it is almost guaranteed that you almost

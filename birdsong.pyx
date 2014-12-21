@@ -3,7 +3,7 @@
 
     Process the data in birdsong.
 
-Last modified: Sun Dec 21, 2014  02:36AM
+Last modified: Sun Dec 21, 2014  07:20AM
 
 """
     
@@ -68,6 +68,11 @@ class BirdSong:
         """
         # This sorting is done according to y position. Lower the startx
         # position better chance of it being a note.
+        if g.isFilterted:
+            pu.log("INFO"
+                    , "Already filtered"
+                    )
+            return 
         if self.isCropped:
             pu.log("WARN"
                     , "Image was cropped before processing." 
@@ -176,8 +181,7 @@ class BirdSong:
         assert self.image.max() <= 255, "Expecting <= 255, got %s" % self.image.max()
 
         if int(g.config_.get('global', 'autocrop')) != 0:
-            raise Exception("Developer error: Dont' crop")
-            g.logger.warn("++ Autocropping image")
+            pu.log("STEP", "Autocropping image")
             threshold = self.image.max() * float(g.config_.get('global', 'crop_threshold'))
             self.croppedImage = self.algo.autoCrop(self.image, threshold)
         else:
@@ -226,21 +230,28 @@ class BirdSong:
 
     def plotNotes(self, filename = None):
         # Plot the notes.
+        pu.log("STEP"
+                , "Saving notes and approximation to files"
+                )
         fig = pylab.figure()
         ax1 = fig.add_subplot(311)
         ax2 = fig.add_subplot(312)
         ax3 = fig.add_subplot(313)
+
         self.notesImage = np.empty(shape=self.croppedImage.shape, dtype=np.int8)
         self.geomImage = np.empty(shape=self.croppedImage.shape, dtype=np.int8)
+
         titleText = [ "{}:{}".format(va[0], va[1]) for va in (g.config_.items('note'))]
 
         ax1.set_title("Extracted notes from spectrogram")
         self.notesImage.fill(255)
         self.geomImage.fill(255)
 
+        pu.log("INFO", "Total %s notes to draw" % len(self.notes))
         for note in self.notes:
-            note.plot(self.notesImage)
-            note.plotGeom(self.geomImage)
+            note.drawPoints(self.notesImage)
+            note.drawGeometry(self.geomImage)
+
         ax1.imshow(self.notesImage, cmap=pylab.gray())
 
         ax2.set_title("Approximation of note with simple  line")

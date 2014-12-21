@@ -212,14 +212,14 @@ cdef class Note:
     #
     # @return None.
     
-    cpdef plot(self, img):
+    cpdef drawPoints(self, img):
         #points = [[p[1], p[0]] for p in self.points]
         #points = np.asarray(points)
         #cv2.fillConvexPoly(img, points, 1)
         for p in self.points:
             img[p[0], p[1]] = g.image_[p[0], p[1]]
 
-    cpdef plotGeom(self, img):
+    cpdef drawGeometry(self, img):
         cdef int i = 0
         #for i, p in enumerate(self.line[:-1]):
         #    startP = self.line[i]

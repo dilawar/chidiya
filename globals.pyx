@@ -60,6 +60,9 @@ stamp = datetime.datetime.fromtimestamp(st).strftime('%Y-%m-%d-%H')
 basedir = "_output"
 outdir = ""
 
+# flags
+isFilterted = False
+
 def createDataDirs(createTimeStampDir = True):
     if not os.path.isdir(basedir):
         os.makedirs(basedir)
