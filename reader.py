@@ -1,7 +1,7 @@
 
 """reader.py: Read audio file
 
-Last modified: Fri Dec 19, 2014  04:48PM
+Last modified: Tue Dec 23, 2014  12:29AM
 
 """
     
@@ -15,9 +15,9 @@ __email__            = "dilawars@ncbs.res.in"
 __status__           = "Development"
 
 import globals as g
-import aifc
 import numpy as np
 import pyhelper.print_utils as pu
+import os 
 
 class AudioFile(object):
 
@@ -29,7 +29,16 @@ class AudioFile(object):
 
     def readData(self):
         g.logger.info("Reading %s " % file)
-        f = aifc.open(self.filepath, "r") 
+        try:
+            import aifc as aud
+            f = aud.open(self.filepath, "r") 
+        except Exception as e:
+            try:
+                import wave  as aud
+                f = aud.open(self.filepath, "r")
+            except:
+                raise RuntimeError("Only WAVE and AIFC format are supported")
+
         self.samplingFreq = f.getframerate()
         g.sampling_freq = self.samplingFreq
         nframes = f.getnframes()
