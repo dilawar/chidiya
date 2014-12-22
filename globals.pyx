@@ -44,6 +44,11 @@ config_ = None
 args_ = None 
 image_ = None
 
+# These two variables fixes the search space on x and y-axis: Any region below
+# and above this line must not be searched.
+minFreq_ = None
+maxFreq_ = None 
+
 # Global debug level
 verbosity_ = 0
 
