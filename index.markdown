@@ -8,37 +8,43 @@ repository_url: http://github.com/dilawar/chidiya
 ## What `chidiya` does?
 
 This cython application __chidiya__ (चिड़िया) -- Hindustani for bird -- is a work in
-progress. It claims to do the following:
+progress. For now, it claims to do the following:
 
 - _Read recorded bird-songs_ (`aiff` file format) and create a spectrogram like the one show below.
 
 ![spectrogram]({{ site.url }}/_data/spectrogram.png)
 
-- _Extract `notes`_. A small section of the spectrogram is shown below. Lower pane
-  is raw spectrogram, the upper pane shows extracted notes.
+- _Extract `notes`_ and approximate them with simple lines. A small section of
+  the spectogram is shown below. Lower pane is raw spectogram, the upper pane
+  shows extracted notes, the middle one is their approximation using simple
+  lines.
 
 ![Extracted notes]( {{ site.url }}/_data/notes.png )
 
 The parameters in _config_ file determines the detected notes. The lighter notes
 are ignored by the parameters.
 
-- _Serialize the notes_ in XML format.
+- _Serialize notes_ in XML format.
 
 - Process stored notes in an XML file and cluster them according to temporal
-  variation. It calls them song. [In progress]
+  variation. It calls them song. Serialize the song into XML. [In progress]
 
-## How to use the program 
+## How to use this program 
+
+### Build the application
 
 Since it is a cython program, you need to build the application using `setup.py`
 file. You would need cython installed on your system.
+
 
     $ python setup.py build_ext --inplace
 
 If this step was successful, then you can now start using this application.
 
+### Run the application 
 
-This should compile the cython files. The entry point of chidiya is `main.py`
-file. You will get a detailed description if you execute the following:
+The entry point of chidiya is `main.py` file. You will get a detailed
+description if you execute the following:
 
     $ python main.py --help
 
@@ -71,5 +77,5 @@ what it does. The performance of this program is very sensitive to what is
 described in configuration file. You must pass the location of configuration
 file. The default location is `chidiya.conf` located in the same directory in
 which you run this application. You need to modify the parameters as suggested
-in [configuration]({% post_url 2014-12-10-Configuration %}) section.
+in __Configuration__ section.
 

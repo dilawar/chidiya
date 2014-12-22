@@ -3,3 +3,84 @@ layout: page
 ---
 
 ## The configuration file
+
+This file has following sections:
+
+- global
+- note 
+- song 
+
+### The [global] section
+
+If set to 1, it will remove rows which have no pixel with threshold val. If this
+is set to 1, we'll loose harmonics. DO NOT CROP. NOT WELL TESTED.  utocrop=0
+Multiply this number with max of image pixal. Should be less than 1.0 but not
+close to 0.4. Whole process is very sensitive to this number. This is not
+advised to use in general case. NOTICE: baseline test rejects almost all notes
+if image is cropped.
+
+    crop_threshold=0.58
+
+These parameters are important. To make analysis easier, we zoom in the image
+before processing. X-axis (time-line) is compressed by a factor of 4, while
+Y-axis is scled up by a factor of 2.
+
+    x_zoom = 0.25
+    y_zoom = 2
+
+From which time, you want to start processing. Default value is 0.0
+start_time = 300
+For how long, starting from start_time, you want to analyze the song. Stop
+time is time + start_time.
+
+    time = 20
+
+### The [note] section
+
+This is perhaps the most important section of this application. A small
+modification in these values are likely to produce different type of notes.
+
+The fraction of avergae pixal value should be used to start searching for pixel.
+The average value is computed by the program. It must be less than 1.0, should
+be less than 0.90.
+
+    maxval_pixal = 0.80
+
+This parameters control the amount we should slither. Any pixel value which is
+higher (lighter) than maxval_note_pixal by this fraction.  Increase this value
+to create larger notes. But you wont be able to get shart discontinuities
+between pixels. Must be larger than 1.0, 
+
+Things gets very sensitive to this value. Be careful when using it. Larger value
+of this parameter detects many possible notes. Bottomline and topline tests
+usually rejects them. Moreover, too small value of this parameter might give us
+sharper notes but each note is computed many time for each notes might have
+discontinuties for this given value.
+
+IF WIENER FILTER IS USED THEN INCREASE IT TO 1.25 which is a decent value. Any
+value less than 1.2 is most likely to produce repetetive notes which are way
+too close to be called separated notes.
+
+    boundary_threshold = 1.25
+
+No of pixels a note must contain to be qualified as pixel. Arbitrary value.
+Should not be less than 20 though.
+
+    min_pixels=1
+
+Minimum width of note in second. All notes less than this size will be
+rejected.
+
+    min_width = 1e-3
+
+Maxinun width of a note in second.
+
+    max_width = 1e0
+
+### The [song] section 
+
+This parameters set how much separation should be there between two songs. If
+the separation if less than this number then the note is not counted as the
+song.
+
+    min_separation = 20
