@@ -171,7 +171,7 @@ class BirdSong:
         pylab.imsave(self.filename, self.imageMat)
         pylab.close()
         self.getNotes()
-        self.plotNotes(os.path.join(g.outdir, "notes.png"))
+        self.plotNotes(os.path.join(g.outdir, "notes.eps"))
         #self.plotNotes(filename = None)
 
     def getNotes(self, **kwargs):

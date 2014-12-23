@@ -33,6 +33,3 @@ cpdef spectogram(data, samplingFreq):
             , window = pylab.window_hanning
             )
     return (Pxx, freqs, bins, im)
-    
-
-
